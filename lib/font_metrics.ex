@@ -5,20 +5,34 @@
 
 defmodule FontMetrics do
   @moduledoc """
-  Documentation for FontMetrics.
+  Provides graphical measurements for strings.
+
+  
   """
 
   import IEx
 
   @version            "0.1.0"
+  @name               to_string(__MODULE__)
 
   @signature_type     :sha256
+  @signature_name     to_string(@signature_type)
 
   @point_to_pixel_ratio  4 / 3
 
+  # ===========================================================================
+  @derive [{Msgpax.Packer, include_struct_field: true}]
+  @derive Msgpax.Packer
   defstruct version: nil,
   source: nil, direction: nil, smallest_ppem: nil, units_per_em: nil,
   max_box: nil, ascent: nil, descent: nil, metrics: %{}, kerning: %{}
+
+  # ===========================================================================
+  defmodule Error do
+    @moduledoc false
+    defexception error: nil, data: nil
+  end
+
 
   #============================================================================
   # high-level functions
@@ -27,15 +41,102 @@ defmodule FontMetrics do
   def expected_hash(), do: @signature_type
 
   #--------------------------------------------------------
-  def to_binary( %FontMetrics{} = metrics ) do
-    :erlang.term_to_binary(metrics, [{:compressed, 9}, {:minor_version, 2}])
+  def to_binary(
+    %{version: @version} = metrics
+  ) do
+    metrics
+    |> prep_bin()
+    |> Msgpax.pack()
+    |> case do
+      {:ok, io_list} -> {:ok, :zlib.zip( io_list )}
+      err -> err
+    end
+  end
+
+  #--------------------------------------------------------
+  def to_binary!(
+    %{version: @version} = metrics
+  ) do
+    metrics
+    |> prep_bin()
+    |> Msgpax.pack!()
+    |> :zlib.zip()
+  end
+
+  defp prep_bin( %{max_box: {x_min,y_min,x_max,y_max}, kerning: kerning} = metrics ) do
+    metrics
+    |> Map.put( :max_box, [x_min, y_min, x_max, y_max] )
+    |> Map.put( :kerning, Enum.map(kerning, fn({{a,b},v})-> [a,b,v] end) )
   end
 
   #--------------------------------------------------------
   def from_binary( binary ) when is_binary(binary) do
-    case :erlang.binary_to_term(binary, [:safe]) do
-      :badarg -> {:error, :invalid}
-      term -> {:ok, term}
+    :zlib.unzip( binary )
+    |> Msgpax.unpack()
+    |> case do
+      {:ok, map} -> intrepret_unpack(map)
+      err -> err
+    end
+  end
+
+  #--------------------------------------------------------
+  def from_binary!( binary ) when is_binary(binary) do
+    :zlib.unzip( binary )
+    |> Msgpax.unpack!()
+    |> intrepret_unpack!()
+  end
+
+  #------------------------------------
+  defp intrepret_unpack(%{
+    "__struct__" => @name,
+    "version" => @version,
+    "direction" => direction,
+    "ascent" => ascent,
+    "descent" => descent,
+    "smallest_ppem" => smallest_ppem,
+    "units_per_em" => units_per_em,
+    "max_box" => [x_min, y_min, x_max, y_max],
+    "kerning" => kerning,
+    "metrics" => metrics,
+    "source" => %{
+      "created_at" => created_at,
+      "modified_at" => modified_at, 
+      "font_type" => font_type,
+      "signature" => signature,
+      "signature_type" => @signature_name
+    }
+  }) do
+    {:ok, %FontMetrics{
+      version: @version,
+      direction: direction,
+      ascent: ascent,
+      descent: descent,
+      smallest_ppem: smallest_ppem,
+      units_per_em: units_per_em,
+      max_box: {x_min, y_min, x_max, y_max},
+      kerning: Enum.map(kerning, fn([a,b,v]) -> {{a,b},v} end) |> Enum.into(%{}),
+      metrics: metrics,
+      source: %FontMetrics.Source{
+        created_at: created_at,
+        modified_at: modified_at,          
+        font_type: font_type,
+        signature: signature,
+        signature_type: :sha256,
+      },
+    }}
+  end
+  defp intrepret_unpack(%{"version" => version}) when version != version do
+    {:error, :version, version}
+  end
+  defp intrepret_unpack(%{"signature_type" => sig}) when sig != @signature_name do
+    {:error, :signature_type, sig}
+  end
+  defp intrepret_unpack(_), do: {:error, :invalid}
+
+  defp intrepret_unpack!(map) do
+    case intrepret_unpack(map) do
+      {:ok, font_metrics} -> font_metrics
+      err -> raise %FontMetrics.Error{error: err, data: map}
     end
   end
 

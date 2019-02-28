@@ -21,6 +21,7 @@ defmodule FontMetrics.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:msgpax, "~> 2.2"}
     ]
   end
 end

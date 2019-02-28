@@ -5,10 +5,12 @@
 
 defmodule FontMetrics.Source do
   @moduledoc """
-  Documentation for FontMetrics.
+  Struct defining source information for a font metrics term.
+
+  
   """
 
-
+  @derive Msgpax.Packer
   defstruct signature: nil, signature_type: nil, font_type: nil,
     created_at: nil, modified_at: nil
 
