@@ -1,5 +1,7 @@
 # FontMetrics
 
+[![Build Status](https://travis-ci.org/boydm/scenic.svg?branch=master)](https://travis-ci.org/boydm/scenic)
+
 This library works with pre-generated font metrics to explore and calculate various
 measurements of text in a given font and size.
 
