@@ -284,7 +284,7 @@ defmodule FontMetricsTest do
              "This string will be short___"
   end
 
-  test "shorten returns an empty string if the max width is too small for the terminator" do
+  test "shorten returns an empty string if the max is too small for the terminator" do
     string = "This string will be shortened to the requested width"
     assert FontMetrics.shorten(string, 2, 22, @roboto_metrics) == ""
   end
