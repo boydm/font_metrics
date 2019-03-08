@@ -17,6 +17,7 @@ defmodule FontMetrics.MixProject do
       deps: deps(),
       docs: docs(),
       package: package(),
+      description: description(),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: cli_env()
     ]
@@ -29,7 +30,7 @@ defmodule FontMetrics.MixProject do
       "coveralls.json": :test
     ]
   end
-  
+
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
@@ -44,7 +45,7 @@ defmodule FontMetrics.MixProject do
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:excoveralls, ">= 0.0.0", only: :test, runtime: false},
       {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
-      {:inch_ex, "~> 2.0", only: [:dev, :docs], runtime: false},
+      {:inch_ex, "~> 2.0", only: [:dev, :docs], runtime: false}
     ]
   end
 
@@ -54,10 +55,9 @@ defmodule FontMetrics.MixProject do
       contributors: ["Boyd Multerer"],
       maintainers: ["Boyd Multerer"],
       licenses: ["Apache 2"],
-      links: %{Github: @github},
+      links: %{Github: @github}
     ]
   end
- 
 
   defp description do
     """
@@ -71,5 +71,4 @@ defmodule FontMetrics.MixProject do
       source_url: "https://github.com/boydm/font_metrics"
     ]
   end
-
 end
