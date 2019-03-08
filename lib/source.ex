@@ -12,6 +12,6 @@ defmodule FontMetrics.Source do
 
   @derive Msgpax.Packer
   defstruct signature: nil, signature_type: nil, font_type: nil,
-    created_at: nil, modified_at: nil
+    created_at: nil, modified_at: nil, file: nil
 
 end

@@ -1,6 +1,13 @@
 # FontMetrics
 
-**TODO: Add description**
+This library works with pre-generated font metrics to explore and calculate various
+measurements of text in a given font and size.
+
+For example, if you want to know how wide or tall a string of text will be when
+it is rendered in a given font at a given size, then this can help you out.
+
+This library is intended to be used with the [Scenic](https://hex.pm/packages/scenic)
+framework, but doesn't depend on it, so it is usable elsewhere.
 
 ## Installation
 
@@ -10,12 +17,13 @@ by adding `font_metrics` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:font_metrics, "~> 0.1.0"}
+    {:font_metrics, "~> 0.3"}
   ]
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/font_metrics](https://hexdocs.pm/font_metrics).
+## Generating Metrics
 
+You will need to use another package to compile the font metrics data from a font.
+
+This can be done with the truetype_metrics package. Look for it on hex...

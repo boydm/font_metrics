@@ -7,16 +7,16 @@ defmodule FontMetricsTest do
   use ExUnit.Case
   doctest FontMetrics
 
-  import IEx
+  # import IEx
 
-  @bitter   "test/metrics/bitter.metrics"
-  @bitter_signature "HhK_V3WHLydpJjQ25BxFUv8Q_jn7iHzkezCraBo76gg"
+  @bitter   "test/metrics/Bitter-Regular.ttf.metrics"
   @bitter_metrics   File.read!( @bitter ) |> FontMetrics.from_binary!()
+  @bitter_signature @bitter_metrics.source.signature
 
 
-  @roboto   "test/metrics/roboto.metrics"
-  @roboto_signature "eehRQEZX2sIQaz0irSVtR4JKmldlRY7bcskQKkWBbZU"
+  @roboto   "test/metrics/Roboto-Regular.ttf.metrics"
   @roboto_metrics   File.read!( @roboto ) |> FontMetrics.from_binary!()
+  @roboto_signature @roboto_metrics.source.signature
 
   @hash_type  :sha256
 
@@ -45,7 +45,7 @@ defmodule FontMetricsTest do
 
     assert metrics.source.signature_type == @hash_type
     assert metrics.source.signature == @bitter_signature
-    assert metrics.source.font_type == "TrueType"
+    assert metrics.source.font_type == :true_type
   end
 
   test "from_binary decodes roboto into a proper struct" do
@@ -62,7 +62,7 @@ defmodule FontMetricsTest do
 
     assert metrics.source.signature_type == @hash_type
     assert metrics.source.signature == @roboto_signature
-    assert metrics.source.font_type == "TrueType"
+    assert metrics.source.font_type == :true_type
   end
 
   test "from_binary returns error if the data is bad" do
@@ -87,7 +87,7 @@ defmodule FontMetricsTest do
 
     assert metrics.source.signature_type == @hash_type
     assert metrics.source.signature == @bitter_signature
-    assert metrics.source.font_type == "TrueType"
+    assert metrics.source.font_type == :true_type
   end
 
   test "from_binary! raises if the data is bad" do
@@ -243,6 +243,28 @@ defmodule FontMetricsTest do
       FontMetrics.width( longest, 22, @roboto_metrics )
   end
 
+  #============================================================================
+  # position_at( source, n, pixels, font_metric)
+
+  test "position_at works with a simple string" do
+    string = "PANCAKE breafasts are yummy"
+    {w, 0} = FontMetrics.position_at(string, 8, 22, @roboto_metrics)
+    assert trunc(w) == 99
+    {w, 0} = FontMetrics.position_at(string, 8, 22, @bitter_metrics)
+    assert trunc(w) == 103
+    {w, 0} = FontMetrics.position_at(string, 8, 22, @bitter_metrics, kern: true)
+    assert trunc(w) == 101
+  end
+
+  test "position_at works with a multiline string" do
+    string = "PANCAKE breafasts\nPANCAKE are yummy"
+    {w, 1} = FontMetrics.position_at(string, 25, 22, @roboto_metrics)
+    assert trunc(w) == 89
+    {w, 1} = FontMetrics.position_at(string, 25, 22, @bitter_metrics)
+    assert trunc(w) == 92
+    {w, 1} = FontMetrics.position_at(string, 25, 22, @bitter_metrics, kern: true)
+    assert trunc(w) == 90
+  end
 
   #============================================================================
   # shorten( source, max_width, pixels, font_metric, terminator \\ "...")
@@ -266,8 +288,52 @@ defmodule FontMetricsTest do
 
   test "shorten works with lines in a multiline string" do
     string = "This string\nwill be shortened to the requested\nwidth"
-    assert FontMetrics.shorten( string, 100, 22, @roboto_metrics ) ==
+    assert FontMetrics.shorten( string, 160, 22, @roboto_metrics ) ==
       "This string\nwill be shortened...\nwidth"
+  end
+
+  test "shorten shortens a string using kerning" do
+    string = "PANCAKE breafasts are yummy"
+    assert FontMetrics.shorten( string, 190, 22, @bitter_metrics, kern: true ) ==
+      "PANCAKE breafasts..."
+  end
+
+  #============================================================================
+  # nearest_gap( source, {x,y}, pixels, font_metrics, opts \\ [] )
+
+  test "nearest_gap finds the gap in a simple string" do
+    string = "This is a sample string"
+    {14, w, 0} = FontMetrics.nearest_gap( string, {120,0}, 22, @roboto_metrics )
+    assert trunc(w) == 121
+    {15, w, 0} = FontMetrics.nearest_gap( string, {124,0}, 22, @roboto_metrics )
+    assert trunc(w) == 125
+  end
+
+  test "nearest_gap finds the gap in a kerned string" do
+    string = "PANCAKE breafasts are yummy"
+    {11, w, 0} = FontMetrics.nearest_gap( string, {120,0}, 22, @bitter_metrics, kern: true )
+    assert trunc(w) == 119
+    {12, w, 0} = FontMetrics.nearest_gap( string, {126,0}, 22, @bitter_metrics, kern: true )
+    assert trunc(w) == 129
+  end
+
+  test "nearest_gap returns the start if negative y" do
+    string = "This is a sample string"
+    assert FontMetrics.nearest_gap( string, {20,-10}, 22, @roboto_metrics ) == {0,0,0}
+  end
+
+  test "nearest_gap returns the start if negative x" do
+    string = "This is a sample string"
+    assert FontMetrics.nearest_gap( string, {-20,0}, 22, @roboto_metrics ) == {0,0,0}
+  end
+
+  test "nearest_gap returns line of a multiline string" do
+    string = "This string\nwill be shortened to the requested\nwidth"
+    {15,w,1} = FontMetrics.nearest_gap( string, {120,24}, 22, @roboto_metrics )
+    assert trunc(w) == 121
+    {5,w,2} = FontMetrics.nearest_gap( string, {120,46}, 22, @roboto_metrics )
+    assert trunc(w) == 45
+
   end
 
 end
