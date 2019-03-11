@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/boydm/scenic.svg?branch=master)](https://travis-ci.org/boydm/font_metrics)
 
-This library works with pre-generated font metrics to explore and calculate various
+This library works with pre-generated font metrics data to explore and calculate various
 measurements of text in a given font and size.
 
 For example, if you want to know how wide or tall a string of text will be when
@@ -28,4 +28,4 @@ end
 
 You will need to use another package to compile the font metrics data from a font.
 
-This can be done with the truetype_metrics package. Look for it on hex...
+This can be done with the truetype_metrics package. Look for it on hex... In the meantime, metrics data for both Roboto and RobotoMono can be found in the Scenic project.
