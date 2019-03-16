@@ -1,6 +1,6 @@
 # FontMetrics
 
-[![Build Status](https://travis-ci.org/boydm/scenic.svg?branch=master)](https://travis-ci.org/boydm/font_metrics)
+[![Build Status](https://travis-ci.org/boydm/font_metrics.svg?branch=master)](https://travis-ci.org/boydm/font_metrics)
 
 This library works with pre-generated font metrics data to explore and calculate various
 measurements of text in a given font and size.
