@@ -5,7 +5,7 @@
 
 defmodule FontMetrics do
   @moduledoc """
-  This library works with pre-generated font metrics to explore and calculate various
+  FontMetrics works with pre-generated font metrics to explore and calculate various
   measurements of text in a given font and size.
 
   For example, if you want to know how wide or tall a string of text will be when
@@ -34,6 +34,8 @@ defmodule FontMetrics do
   This can be done with the truetype_metrics package. Look for it on hex...
   """
 
+  # This represents the version of the data format, not the hex package.
+  # Hopefully, it doesn't change much if at all...
   @version "0.1.0"
   @name to_string(__MODULE__)
 

@@ -67,6 +67,7 @@ defmodule FontMetrics.MixProject do
 
   defp docs do
     [
+      main: "FontMetrics",
       source_ref: "v#{@version}",
       source_url: "https://github.com/boydm/font_metrics"
     ]
