@@ -788,13 +788,20 @@ defmodule FontMetrics do
         p -> p / (ascent - descent)
       end
 
-    indent = case opts[:indent] do
-      n when is_integer(n) and n > 0 ->
-        Enum.reduce(1..n, [], fn(_,s) -> [' ' | s] end)
-      cl when is_list(cl) -> cl
-      bs when is_bitstring(bs) -> String.to_charlist(bs)
-      _ -> ''
-    end
+    indent =
+      case opts[:indent] do
+        n when is_integer(n) and n > 0 ->
+          Enum.reduce(1..n, [], fn _, s -> [' ' | s] end)
+
+        cl when is_list(cl) ->
+          cl
+
+        bs when is_bitstring(bs) ->
+          String.to_charlist(bs)
+
+        _ ->
+          ''
+      end
 
     # calculate the width of the overall indent string
     indent_width = width(indent, pixels, fm, kern)
@@ -810,21 +817,59 @@ defmodule FontMetrics do
   def wrap(source, max_width, pixels, fm, opts) when is_bitstring(source) do
     source
     |> String.to_charlist()
-    |> wrap(max_width, pixels, fm, opts )
+    |> wrap(max_width, pixels, fm, opts)
     |> to_string()
   end
 
-  defp do_wrap( source, max_width, indent, indent_width, cp_metrics, kerning, kern, opts, k_next \\ 0, width \\ 0, out \\ [] )
+  defp do_wrap(
+         source,
+         max_width,
+         indent,
+         indent_width,
+         cp_metrics,
+         kerning,
+         kern,
+         opts,
+         k_next \\ 0,
+         width \\ 0,
+         out \\ []
+       )
 
   defp do_wrap('', _, _, _, _, _, _, _, _, _, out), do: Enum.reverse(out)
 
   # handle newlines
-  defp do_wrap([10 | cps], max_width, indent, indent_width, cp_metrics, kerning, kern, opts, _, _, out) do
-    do_wrap(cps, max_width, indent, indent_width, cp_metrics, kerning, kern, opts, 0, 0, [10 | out])
+  defp do_wrap(
+         [10 | cps],
+         max_width,
+         indent,
+         indent_width,
+         cp_metrics,
+         kerning,
+         kern,
+         opts,
+         _,
+         _,
+         out
+       ) do
+    do_wrap(cps, max_width, indent, indent_width, cp_metrics, kerning, kern, opts, 0, 0, [
+      10 | out
+    ])
   end
 
   # core wrapping function
-  defp do_wrap([cp | cps], max_width, indent, indent_width, cp_metrics, kerning, kern, opts, k_next, width, out) do
+  defp do_wrap(
+         [cp | cps],
+         max_width,
+         indent,
+         indent_width,
+         cp_metrics,
+         kerning,
+         kern,
+         opts,
+         k_next,
+         width,
+         out
+       ) do
     adv = cp_metrics[cp] || cp_metrics[0]
     new_width = width + adv + k_next
     # calc the next kerning amount
@@ -843,37 +888,43 @@ defmodule FontMetrics do
     # if we are past the wrap point, then wrap and reset the counters
     case new_width > max_width do
       true ->
-        out = [ 10 | out]
+        out = [10 | out]
         out = indent ++ out
-        out = [ cp | out]
-        do_wrap(cps, max_width, indent, indent_width, cp_metrics, kerning, kern, opts, 0, indent_width, out)
+        out = [cp | out]
+
+        do_wrap(
+          cps,
+          max_width,
+          indent,
+          indent_width,
+          cp_metrics,
+          kerning,
+          kern,
+          opts,
+          0,
+          indent_width,
+          out
+        )
+
       false ->
-        out = [ cp | out]
-        do_wrap(cps, max_width, indent, indent_width, cp_metrics, kerning, kern, opts, k_next, new_width, out)
+        out = [cp | out]
+
+        do_wrap(
+          cps,
+          max_width,
+          indent,
+          indent_width,
+          cp_metrics,
+          kerning,
+          kern,
+          opts,
+          k_next,
+          new_width,
+          out
+        )
     end
   end
 
   # defp indent_wrap( out, n ) when n <= 0, do: out
   # defp indent_wrap( out, n ), do: indent_wrap( [ 32 | out], n - 1 )
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
