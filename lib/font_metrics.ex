@@ -409,8 +409,8 @@ defmodule FontMetrics do
   Shorten a string to fit a given width
 
   options
-  * :kern - account for Kerning - true or false
-  * :terminator - add this string to the end of the shortened string. Defaults to "..."
+  * `:kern` - account for Kerning - true or false
+  * `:terminator` - add this string to the end of the shortened string. Defaults to "..."
 
   returns `string`
   """
@@ -550,7 +550,7 @@ defmodule FontMetrics do
   Find the gap between to characters given an {x,y} coordinate
 
   options
-  * :kern - account for Kerning - true or false
+  * `:kern` - account for Kerning - true or false
 
   returns `{character_number, x_position, line_number}`
   """
@@ -753,4 +753,127 @@ defmodule FontMetrics do
 
     do_position_at(cps, n - 1, cp_metrics, kerning, kern, k_next, line_no, width)
   end
+
+  # --------------------------------------------------------
+  @doc """
+  Wraps a string to a given width by adding returns.
+
+  options
+  * `:indent` - indent wrapped lines by n spaces. `intent: 2`
+  * `:kern` - account for Kerning - true or false
+
+  returns `{x_position, line_number}`
+  """
+  def wrap(source, max_width, pixels, font_metric, opts \\ [])
+
+  def wrap(
+        source,
+        max_width,
+        pixels,
+        %FontMetrics{
+          metrics: cp_metrics,
+          ascent: ascent,
+          descent: descent,
+          kerning: kerning,
+          version: @version
+        } = fm,
+        opts
+      )
+      when is_list(source) and is_list(opts) and max_width > 0 do
+    kern = !!opts[:kern]
+    # calculate the scaled x and y to use
+    scale =
+      case pixels do
+        nil -> 1.0
+        p -> p / (ascent - descent)
+      end
+
+    indent = case opts[:indent] do
+      n when is_integer(n) and n > 0 ->
+        Enum.reduce(1..n, [], fn(_,s) -> [' ' | s] end)
+      cl when is_list(cl) -> cl
+      bs when is_bitstring(bs) -> String.to_charlist(bs)
+      _ -> ''
+    end
+
+    # calculate the width of the overall indent string
+    indent_width = width(indent, pixels, fm, kern)
+
+    # reverse the indent string so it comes out right when the whole thing
+    # is reversed at the end
+    indent = Enum.reverse(indent)
+
+    max_width = max_width / scale
+    do_wrap(source, max_width, indent, indent_width, cp_metrics, kerning, kern, opts)
+  end
+
+  def wrap(source, max_width, pixels, fm, opts) when is_bitstring(source) do
+    source
+    |> String.to_charlist()
+    |> wrap(max_width, pixels, fm, opts )
+    |> to_string()
+  end
+
+  defp do_wrap( source, max_width, indent, indent_width, cp_metrics, kerning, kern, opts, k_next \\ 0, width \\ 0, out \\ [] )
+
+  defp do_wrap('', _, _, _, _, _, _, _, _, _, out), do: Enum.reverse(out)
+
+  # handle newlines
+  defp do_wrap([10 | cps], max_width, indent, indent_width, cp_metrics, kerning, kern, opts, _, _, out) do
+    do_wrap(cps, max_width, indent, indent_width, cp_metrics, kerning, kern, opts, 0, 0, [10 | out])
+  end
+
+  # core wrapping function
+  defp do_wrap([cp | cps], max_width, indent, indent_width, cp_metrics, kerning, kern, opts, k_next, width, out) do
+    adv = cp_metrics[cp] || cp_metrics[0]
+    new_width = width + adv + k_next
+    # calc the next kerning amount
+    k_next =
+      case kern do
+        false ->
+          0
+
+        true ->
+          case cps do
+            [] -> 0
+            [cpn | _] -> kerning[{cp, cpn}] || 0
+          end
+      end
+
+    # if we are past the wrap point, then wrap and reset the counters
+    case new_width > max_width do
+      true ->
+        out = [ 10 | out]
+        out = indent ++ out
+        out = [ cp | out]
+        do_wrap(cps, max_width, indent, indent_width, cp_metrics, kerning, kern, opts, 0, indent_width, out)
+      false ->
+        out = [ cp | out]
+        do_wrap(cps, max_width, indent, indent_width, cp_metrics, kerning, kern, opts, k_next, new_width, out)
+    end
+  end
+
+  # defp indent_wrap( out, n ) when n <= 0, do: out
+  # defp indent_wrap( out, n ), do: indent_wrap( [ 32 | out], n - 1 )
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

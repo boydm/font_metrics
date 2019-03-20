@@ -339,4 +339,36 @@ defmodule FontMetricsTest do
     {5, w, 2} = FontMetrics.nearest_gap(string, {120, 46}, 22, @roboto_metrics)
     assert trunc(w) == 45
   end
+
+  # ============================================================================
+  # wrap( binary, max_width, pixels, font_metrics, opts )
+
+  @long_str "This is a long string that will be wrapped because it is too wide."
+  @long_ret "This is a long string that will be wrapped because it is too wide\nIt also deals with returns in the string"
+
+  test "wrap wraps a string" do
+    assert FontMetrics.wrap(@long_str, 110, 22, @roboto_metrics) == 
+      "This is a lon\ng string that w\nill be wrappe\nd because it is\n too wide."
+  end
+
+  test "wrap wraps a string with a return" do
+    assert FontMetrics.wrap(@long_ret, 110, 22, @roboto_metrics) == 
+      "This is a lon\ng string that w\nill be wrappe\nd because it is\n too wide\nIt also deals \nwith returns in \nthe string"
+  end
+
+  test "wrap wraps a string with numeric indent option" do
+    assert FontMetrics.wrap(@long_str, 120, 22, @roboto_metrics, indent: 2) == 
+      "This is a long \n  string that will \n  be wrapped be\n  cause it is too \n  wide."
+  end
+
+  test "wrap wraps a string with string indent option" do
+    assert FontMetrics.wrap(@long_str, 120, 22, @roboto_metrics, indent: "_abc_") == 
+      "This is a long \n_abc_string that will \n_abc_be wrapped be\n_abc_cause it is too \n_abc_wide."
+  end
+
+  test "wrap wraps a string with charlist indent option" do
+    assert FontMetrics.wrap(@long_str, 120, 22, @roboto_metrics, indent: '_abc_') == 
+      "This is a long \n_abc_string that will \n_abc_be wrapped be\n_abc_cause it is too \n_abc_wide."
+  end
+
 end
