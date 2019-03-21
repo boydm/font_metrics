@@ -1,6 +1,7 @@
 # FontMetrics
 
 [![Build Status](https://travis-ci.org/boydm/font_metrics.svg?branch=master)](https://travis-ci.org/boydm/font_metrics)
+[![Codecov](https://codecov.io/gh/boydm/font_metrics/branch/master/graph/badge.svg)](https://codecov.io/gh/boydm/font_metrics)
 
 This library works with pre-generated font metrics data to explore and calculate various
 measurements of text in a given font and size.
