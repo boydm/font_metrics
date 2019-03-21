@@ -759,10 +759,10 @@ defmodule FontMetrics do
   Wraps a string to a given width by adding returns.
 
   options
-  * `:indent` - indent wrapped lines by n spaces. `intent: 2`
+  * `:indent` - indent wrapped lines by n spaces or a given string. examples: `indent: 2` or `indent: "___"` or `indent: '...'`
   * `:kern` - account for Kerning - true or false
 
-  returns `{x_position, line_number}`
+  returns the wrapped string
   """
   def wrap(source, max_width, pixels, font_metric, opts \\ [])
 
