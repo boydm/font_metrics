@@ -358,16 +358,16 @@ defmodule FontMetricsTest do
 
   test "wrap wraps a string with numeric indent option" do
     assert FontMetrics.wrap(@long_str, 120, 22, @roboto_metrics, indent: 2) ==
-             "This is a long \n  string that will \n  be wrapped be\n  cause it is too \n  wide."
+             "This is a long \n  string that will\n   be wrapped \n  because it is t\n  oo wide."
   end
 
   test "wrap wraps a string with string indent option" do
     assert FontMetrics.wrap(@long_str, 120, 22, @roboto_metrics, indent: "_abc_") ==
-             "This is a long \n_abc_string that will \n_abc_be wrapped be\n_abc_cause it is too \n_abc_wide."
+             "This is a long \n_abc_string tha\n_abc_t will be \n_abc_wrapped \n_abc_because i\n_abc_t is too w\n_abc_ide."
   end
 
   test "wrap wraps a string with charlist indent option" do
     assert FontMetrics.wrap(@long_str, 120, 22, @roboto_metrics, indent: '_abc_') ==
-             "This is a long \n_abc_string that will \n_abc_be wrapped be\n_abc_cause it is too \n_abc_wide."
+             "This is a long \n_abc_string tha\n_abc_t will be \n_abc_wrapped \n_abc_because i\n_abc_t is too w\n_abc_ide."
   end
 end

@@ -44,7 +44,7 @@ defmodule FontMetrics do
 
   @point_to_pixel_ratio 4 / 3
 
-  # import IEx
+  import IEx
 
   # ===========================================================================
   @derive [{Msgpax.Packer, include_struct_field: true}]
@@ -791,7 +791,7 @@ defmodule FontMetrics do
     indent =
       case opts[:indent] do
         n when is_integer(n) and n > 0 ->
-          Enum.reduce(1..n, [], fn _, s -> [' ' | s] end)
+          Enum.reduce(1..n, [], fn _, s -> [0xA0 | s] end)
 
         cl when is_list(cl) ->
           cl
@@ -804,12 +804,10 @@ defmodule FontMetrics do
       end
 
     # calculate the width of the overall indent string
-    indent_width = width(indent, pixels, fm, kern)
-
+    indent_width = width(indent, pixels, fm, kern) / scale
     # reverse the indent string so it comes out right when the whole thing
     # is reversed at the end
     indent = Enum.reverse(indent)
-
     max_width = max_width / scale
     do_wrap(source, max_width, indent, indent_width, cp_metrics, kerning, kern, opts)
   end
