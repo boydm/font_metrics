@@ -44,7 +44,7 @@ defmodule FontMetrics do
 
   @point_to_pixel_ratio 4 / 3
 
-  import IEx
+  # import IEx
 
   # ===========================================================================
   @derive [{Msgpax.Packer, include_struct_field: true}]
