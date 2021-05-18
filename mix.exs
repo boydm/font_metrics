@@ -46,7 +46,6 @@ defmodule FontMetrics.MixProject do
       {:excoveralls, ">= 0.0.0", only: :test, runtime: false},
       {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
       {:inch_ex, "~> 2.0", only: [:dev, :docs], runtime: false},
-
       {:dialyxir, "~> 1.1", only: :dev, runtime: false}
     ]
   end

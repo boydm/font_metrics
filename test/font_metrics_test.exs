@@ -10,12 +10,12 @@ defmodule FontMetricsTest do
   # import IEx
 
   @bitter_metrics "test/metrics/bitter.ttf.metrics_term"
-    |> File.read!()
-    |> :erlang.binary_to_term()
+                  |> File.read!()
+                  |> :erlang.binary_to_term()
 
   @roboto_metrics "test/metrics/roboto.ttf.metrics_term"
-    |> File.read!()
-    |> :erlang.binary_to_term()
+                  |> File.read!()
+                  |> :erlang.binary_to_term()
 
   @version "0.1.1"
   @hash_type :sha3_256
