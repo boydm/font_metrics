@@ -12,7 +12,7 @@ defmodule FontMetrics.Source do
 
   @type t :: %FontMetrics.Source{
           signature: binary,
-          signature_type: :sha_256 | :sha3_256 | :sha3_512
+          signature_type: :sha_256 | :sha3_256 | :sha3_512,
           font_type: :true_type,
           created_at: DateTime.t(),
           modified_at: DateTime.t(),
