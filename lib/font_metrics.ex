@@ -22,7 +22,7 @@ defmodule FontMetrics do
   ```elixir
   def deps do
     [
-      {:font_metrics, "~> 0.3"}
+      {:font_metrics, "~> 0.5"}
     ]
   end
   ```
@@ -53,8 +53,8 @@ defmodule FontMetrics do
           ascent: integer,
           descent: integer,
           line_gap: integer,
-          metrics: map,
-          kerning: map
+          metrics: %{ integer => number },
+          kerning: %{ {integer,integer} => number }
         }
 
   defstruct version: nil,
