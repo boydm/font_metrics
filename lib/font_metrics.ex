@@ -36,9 +36,7 @@ defmodule FontMetrics do
 
   # This represents the version of the data format, not the hex package.
   # Hopefully, it doesn't change much if at all...
-  @version "0.1.0"
-  @name to_string(__MODULE__)
-
+  @version "0.1.1"
   @point_to_pixel_ratio 4 / 3
 
   # import IEx
@@ -46,7 +44,7 @@ defmodule FontMetrics do
   # ===========================================================================
 
   @type t :: %FontMetrics{
-          version: @version,
+          version: String.t(),
           source: FontMetrics.Source.t(),
           direction: nil,
           smallest_ppem: integer,
@@ -56,58 +54,8 @@ defmodule FontMetrics do
           descent: integer,
           line_gap: integer,
           metrics: map,
-          kerning: nil | map
+          kerning: map
         }
-
-
-  # # ------------------------------------
-  # defp intrepret_unpack(%{
-  #        "__struct__" => @name,
-  #        "version" => @version,
-  #        "direction" => direction,
-  #        "ascent" => ascent,
-  #        "descent" => descent,
-  #        "smallest_ppem" => smallest_ppem,
-  #        "units_per_em" => units_per_em,
-  #        "max_box" => [x_min, y_min, x_max, y_max],
-  #        "kerning" => kerning,
-  #        "metrics" => metrics,
-  #        "source" => %{
-  #          "created_at" => created_at,
-  #          "modified_at" => modified_at,
-  #          "font_type" => font_type,
-  #          "signature" => signature,
-  #          "signature_type" => @signature_name,
-  #          "file" => file
-  #        }
-  #      }) do
-  #   font_type =
-  #     case font_type do
-  #       "TrueType" -> :true_type
-  #     end
-
-  #   {:ok,
-  #    %FontMetrics{
-  #      version: @version,
-  #      direction: direction,
-  #      ascent: ascent,
-  #      descent: descent,
-  #      smallest_ppem: smallest_ppem,
-  #      units_per_em: units_per_em,
-  #      max_box: {x_min, y_min, x_max, y_max},
-  #      kerning: Enum.map(kerning, fn [a, b, v] -> {{a, b}, v} end) |> Enum.into(%{}),
-  #      metrics: metrics,
-  #      source: %FontMetrics.Source{
-  #        created_at: created_at,
-  #        modified_at: modified_at,
-  #        font_type: font_type,
-  #        signature: signature,
-  #        signature_type: :sha256,
-  #        file: file
-  #      }
-  #    }}
-  # end
-
 
   defstruct version: nil,
             source: nil,
@@ -129,6 +77,9 @@ defmodule FontMetrics do
 
   # ============================================================================
   # high-level functions
+
+  def version(), do: @version
+  def expected_hash(), do: :sha3_256
 
   # ============================================================================
   # validity checks
@@ -211,7 +162,7 @@ defmodule FontMetrics do
           max_box: {x_min, y_min, x_max, y_max},
           units_per_em: u_p_m,
           version: @version
-        } = fm
+        }
       ) do
     scale = pixels / u_p_m
     {x_min * scale, y_min * scale, x_max * scale, y_max * scale}
@@ -240,7 +191,7 @@ defmodule FontMetrics do
           version: @version
         },
         opts
-      ) do
+      ) when is_list(opts) do
     do_width(source, 1.0, cp_metrics, kerning, !!opts[:kern])
   end
 
@@ -252,10 +203,10 @@ defmodule FontMetrics do
           kerning: kerning,
           units_per_em: u_p_m,
           version: @version
-        } = fm,
+        },
         opts
       )
-      when is_number(pixels) and pixels > 0 do
+      when is_number(pixels) and pixels > 0 and is_list(opts) do
     scale = pixels / u_p_m
     do_width(source, scale, cp_metrics, kerning, !!opts[:kern])
   end
@@ -465,7 +416,7 @@ defmodule FontMetrics do
           kerning: kerning,
           units_per_em: u_p_m,
           version: @version
-        } = fm,
+        },
         opts
       )
       when is_list(line) and is_list(opts) do
@@ -590,7 +541,7 @@ defmodule FontMetrics do
           kerning: kerning,
           units_per_em: u_p_m,
           version: @version
-        } = fm,
+        },
         opts
       )
       when is_list(source) do
@@ -681,7 +632,8 @@ defmodule FontMetrics do
       end
 
     # calculate the width of the overall indent string
-    indent_width = width(indent, pixels, fm, kern) / scale
+    indent_width = width(indent, pixels, fm, opts) / scale
+
     # reverse the indent string so it comes out right when the whole thing
     # is reversed at the end
     indent = Enum.reverse(indent)
@@ -689,7 +641,7 @@ defmodule FontMetrics do
     do_wrap(source, max_width, indent, indent_width, cp_metrics, kerning, kern, opts)
   end
 
-  def wrap(source, max_width, pixels, fm, opts) when is_bitstring(source) do
+  def wrap(source, max_width, pixels, fm, opts) when is_bitstring(source) and is_list(opts) do
     source
     |> String.to_charlist()
     |> wrap(max_width, pixels, fm, opts)

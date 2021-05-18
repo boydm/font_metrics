@@ -9,109 +9,25 @@ defmodule FontMetricsTest do
 
   # import IEx
 
-  @bitter "test/metrics/Bitter-Regular.ttf.metrics"
-  @bitter_metrics File.read!(@bitter) |> FontMetrics.from_binary!()
-  @bitter_signature @bitter_metrics.source.signature
+  @bitter_metrics "test/metrics/bitter.ttf.metrics_term"
+    |> File.read!()
+    |> :erlang.binary_to_term()
 
-  @roboto "test/metrics/Roboto-Regular.ttf.metrics"
-  @roboto_metrics File.read!(@roboto) |> FontMetrics.from_binary!()
-  @roboto_signature @roboto_metrics.source.signature
+  @roboto_metrics "test/metrics/roboto.ttf.metrics_term"
+    |> File.read!()
+    |> :erlang.binary_to_term()
 
-  @hash_type :sha256
-
-  @version "0.1.0"
+  @version "0.1.1"
+  @hash_type :sha3_256
 
   # ============================================================================
+
+  test "version" do
+    assert FontMetrics.version() == @version
+  end
 
   test "expected_hash" do
     assert FontMetrics.expected_hash() == @hash_type
-  end
-
-  # ============================================================================
-  # from_binary( binary )
-
-  test "from_binary decodes bitter into a proper struct" do
-    bin = File.read!(@bitter)
-
-    {:ok, %FontMetrics{} = metrics} = FontMetrics.from_binary(bin)
-    assert metrics.version == @version
-
-    assert metrics.max_box == {-60, -265, 1125, 935}
-    assert metrics.units_per_em == 1000
-    assert metrics.smallest_ppem == 9
-    assert metrics.direction == 2
-    assert metrics.kerning[{66, 65}] == -30
-
-    assert metrics.source.signature_type == @hash_type
-    assert metrics.source.signature == @bitter_signature
-    assert metrics.source.font_type == :true_type
-  end
-
-  test "from_binary decodes roboto into a proper struct" do
-    bin = File.read!(@roboto)
-
-    {:ok, %FontMetrics{} = metrics} = FontMetrics.from_binary(bin)
-    assert metrics.version == @version
-
-    assert metrics.max_box == {-1509, -555, 2352, 2163}
-    assert metrics.units_per_em == 2048
-    assert metrics.smallest_ppem == 9
-    assert metrics.direction == 2
-    assert metrics.kerning == %{}
-
-    assert metrics.source.signature_type == @hash_type
-    assert metrics.source.signature == @roboto_signature
-    assert metrics.source.font_type == :true_type
-  end
-
-  test "from_binary returns error if the data is bad" do
-    bin = File.read!(@bitter)
-    assert FontMetrics.from_binary("garbage" <> bin) == {:error, :unzip}
-  end
-
-  # ============================================================================
-  # from_binary!( binary )
-
-  test "from_binary! decodes bitter into a proper struct" do
-    bin = File.read!(@bitter)
-
-    %FontMetrics{} = metrics = FontMetrics.from_binary!(bin)
-    assert metrics.version == @version
-
-    assert metrics.max_box == {-60, -265, 1125, 935}
-    assert metrics.units_per_em == 1000
-    assert metrics.smallest_ppem == 9
-    assert metrics.direction == 2
-    assert metrics.kerning[{66, 65}] == -30
-
-    assert metrics.source.signature_type == @hash_type
-    assert metrics.source.signature == @bitter_signature
-    assert metrics.source.font_type == :true_type
-  end
-
-  test "from_binary! raises if the data is bad" do
-    bin = File.read!(@bitter)
-
-    assert_raise ErlangError, fn ->
-      FontMetrics.from_binary!("garbage" <> bin)
-    end
-  end
-
-  # ============================================================================
-  # to_binary( binary )
-
-  test "to_binary( binary ) works" do
-    assert FontMetrics.to_binary(@bitter_metrics) == File.read(@bitter)
-  end
-
-  test "to_binary( binary ) enforces the version" do
-    assert_raise FunctionClauseError, fn ->
-      FontMetrics.to_binary(%{@bitter_metrics | version: "not supported"})
-    end
-  end
-
-  test "to_binary!( binary ) works" do
-    assert FontMetrics.to_binary!(@bitter_metrics) == File.read!(@bitter)
   end
 
   # ============================================================================
@@ -127,9 +43,6 @@ defmodule FontMetricsTest do
     refute FontMetrics.supported?('括', @roboto_metrics)
     refute FontMetrics.supported?("括", @roboto_metrics)
     refute FontMetrics.supported?("括", @bitter_metrics)
-
-    assert FontMetrics.supported?('Ж', @roboto_metrics)
-    refute FontMetrics.supported?('Ж', @bitter_metrics)
   end
 
   test "supported? checks multiple characters" do
@@ -198,7 +111,7 @@ defmodule FontMetricsTest do
 
   test "width of an empty string is always 0" do
     assert FontMetrics.width("", nil, @roboto_metrics) == 0
-    assert FontMetrics.width("", nil, @bitter_metrics, true) == 0
+    assert FontMetrics.width("", nil, @bitter_metrics, kern: true) == 0
     assert FontMetrics.width("", 24, @roboto_metrics) == 0
   end
 
@@ -228,12 +141,12 @@ defmodule FontMetricsTest do
     metrics = @bitter_metrics
 
     raw_width = FontMetrics.width(string, nil, metrics)
-    raw_kerned = FontMetrics.width(string, nil, metrics, true)
+    raw_kerned = FontMetrics.width(string, nil, metrics, kern: true)
     assert raw_kerned < raw_width
 
     scale = 22 / metrics.units_per_em
     assert FontMetrics.width(string, 22, metrics) == raw_width * scale
-    assert FontMetrics.width(string, 22, metrics, true) == raw_kerned * scale
+    assert FontMetrics.width(string, 22, metrics, kern: true) == raw_kerned * scale
   end
 
   test "width the returns the longest line of a multiline string" do
