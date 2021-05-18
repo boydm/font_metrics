@@ -1,6 +1,6 @@
 #
 #  Created by Boyd Multerer on 24/02/19.
-#  Copyright © 2019 Kry10 Industries. All rights reserved.
+#  Copyright © 2019-2021 Kry10 Industries. All rights reserved.
 #
 
 defmodule FontMetrics do
@@ -225,6 +225,12 @@ defmodule FontMetrics do
     end
   end
 
+
+  # defp scale( pixels, %FontMetrics{ units_per_em: u_p_m, version: @version } ) do
+  #   pixels / u_p_m
+  # end
+
+
   # ============================================================================
   # validity checks
 
@@ -262,11 +268,8 @@ defmodule FontMetrics do
   def ascent(pixels, font_metrics)
   def ascent(nil, %FontMetrics{ascent: ascent, version: @version}), do: ascent
 
-  def ascent(
-        pixels,
-        %FontMetrics{ascent: ascent, descent: descent, version: @version}
-      ) do
-    ascent * (pixels / (ascent - descent))
+  def ascent( pixels, %FontMetrics{ascent: ascent, units_per_em: u_p_m } = fm ) do
+    ascent * pixels / u_p_m
   end
 
   # --------------------------------------------------------
@@ -277,12 +280,8 @@ defmodule FontMetrics do
   """
   def descent(pixels, font_metrics)
   def descent(nil, %FontMetrics{descent: descent, version: @version}), do: descent
-
-  def descent(
-        pixels,
-        %FontMetrics{ascent: ascent, descent: descent, version: @version}
-      ) do
-    descent * (pixels / (ascent - descent))
+  def descent( pixels, %FontMetrics{descent: descent, units_per_em: u_p_m } = fm ) do
+    descent * pixels / u_p_m
   end
 
   # --------------------------------------------------------
@@ -308,12 +307,11 @@ defmodule FontMetrics do
         pixels,
         %FontMetrics{
           max_box: {x_min, y_min, x_max, y_max},
-          ascent: ascent,
-          descent: descent,
+          units_per_em: u_p_m,
           version: @version
-        }
+        } = fm
       ) do
-    scale = pixels / (ascent - descent)
+    scale = pixels / u_p_m
     {x_min * scale, y_min * scale, x_max * scale, y_max * scale}
   end
 
@@ -346,15 +344,14 @@ defmodule FontMetrics do
         pixels,
         %FontMetrics{
           metrics: cp_metrics,
-          ascent: ascent,
-          descent: descent,
           kerning: kerning,
+          units_per_em: u_p_m,
           version: @version
-        },
+        } = fm,
         kern
       )
       when is_number(pixels) and pixels > 0 do
-    scale = pixels / (ascent - descent)
+    scale = pixels / u_p_m
     do_width(source, scale, cp_metrics, kerning, kern)
   end
 
@@ -404,6 +401,7 @@ defmodule FontMetrics do
     do_kerned_width(codepoints, scale, cp_metrics, kerning, width)
   end
 
+
   # --------------------------------------------------------
   @doc """
   Shorten a string to fit a given width
@@ -423,9 +421,8 @@ defmodule FontMetrics do
         pixels,
         %FontMetrics{
           metrics: cp_metrics,
-          ascent: ascent,
-          descent: descent,
           kerning: kerning,
+          units_per_em: u_p_m,
           version: @version
         } = font_metrics,
         opts
@@ -441,11 +438,7 @@ defmodule FontMetrics do
       end
 
     # calculate the scale to use
-    scale =
-      case pixels do
-        nil -> 1.0
-        p -> p / (ascent - descent)
-      end
+    scale = pixels / u_p_m
 
     # terminator_width = do_width( terminator, scale, font_metrics, kern )
     terminator_width = do_width(terminator, scale, cp_metrics, kerning, kern)
@@ -564,21 +557,16 @@ defmodule FontMetrics do
         pixels,
         %FontMetrics{
           metrics: cp_metrics,
-          ascent: ascent,
-          descent: descent,
           kerning: kerning,
+          units_per_em: u_p_m,
           version: @version
-        },
+        } = fm,
         opts
       )
       when is_list(line) and is_list(opts) do
     kern = !!opts[:kern]
     # calculate the scaled x and y to use
-    scale =
-      case pixels do
-        nil -> 1.0
-        p -> p / (ascent - descent)
-      end
+    scale = pixels / u_p_m
 
     x = x / scale
     do_nearest_gap(line, x, cp_metrics, kerning, kern)
@@ -590,20 +578,15 @@ defmodule FontMetrics do
         pixels,
         %FontMetrics{
           metrics: cp_metrics,
-          ascent: ascent,
-          descent: descent,
           kerning: kerning,
+          units_per_em: u_p_m,
           version: @version
         } = fm,
         opts
       )
       when is_bitstring(source) do
     # calculate the scale factor
-    scale =
-      case pixels do
-        nil -> 1.0
-        p -> p / (ascent - descent)
-      end
+    scale = pixels / u_p_m
 
     # calculate what line we are interested in
     line_height = opts[:line_height] || pixels
@@ -699,22 +682,17 @@ defmodule FontMetrics do
         pixels,
         %FontMetrics{
           metrics: cp_metrics,
-          ascent: ascent,
-          descent: descent,
           kerning: kerning,
+          units_per_em: u_p_m,
           version: @version
-        },
+        } = fm,
         opts
       )
       when is_list(source) do
     kern = !!opts[:kern]
 
     # calculate the scale factor
-    scale =
-      case pixels do
-        nil -> 1.0
-        p -> p / (ascent - descent)
-      end
+    scale = pixels / u_p_m
 
     {x, l} = do_position_at(source, n, cp_metrics, kerning, kern)
     {x * scale, l}
@@ -772,9 +750,8 @@ defmodule FontMetrics do
         pixels,
         %FontMetrics{
           metrics: cp_metrics,
-          ascent: ascent,
-          descent: descent,
           kerning: kerning,
+          units_per_em: u_p_m,
           version: @version
         } = fm,
         opts
@@ -782,11 +759,7 @@ defmodule FontMetrics do
       when is_list(source) and is_list(opts) and max_width > 0 do
     kern = !!opts[:kern]
     # calculate the scaled x and y to use
-    scale =
-      case pixels do
-        nil -> 1.0
-        p -> p / (ascent - descent)
-      end
+    scale = pixels / u_p_m
 
     indent =
       case opts[:indent] do

@@ -1,6 +1,6 @@
 #
 #  Created by Boyd Multerer on 28/02/19.
-#  Copyright © 2019 Kry10 Industries. All rights reserved.
+#  Copyright © 2019-2021 Kry10 Industries. All rights reserved.
 #
 
 defmodule FontMetricsTest do
@@ -155,7 +155,7 @@ defmodule FontMetricsTest do
 
   test "ascent returns a scaled value" do
     raw_value = FontMetrics.ascent(nil, @roboto_metrics)
-    scale = 22 / (@roboto_metrics.ascent - @roboto_metrics.descent)
+    scale = 22 / @roboto_metrics.units_per_em
 
     assert FontMetrics.ascent(22, @roboto_metrics) == raw_value * scale
   end
@@ -169,7 +169,7 @@ defmodule FontMetricsTest do
 
   test "descent returns a scaled value" do
     raw_value = FontMetrics.descent(nil, @roboto_metrics)
-    scale = 22 / (@roboto_metrics.ascent - @roboto_metrics.descent)
+    scale = 22 / @roboto_metrics.units_per_em
 
     assert FontMetrics.descent(22, @roboto_metrics) == raw_value * scale
   end
@@ -184,7 +184,7 @@ defmodule FontMetricsTest do
   test "max_box returns a scaled value" do
     {xv_min, yv_min, xv_max, yv_max} = FontMetrics.max_box(nil, @roboto_metrics)
 
-    scale = 22 / (@roboto_metrics.ascent - @roboto_metrics.descent)
+    scale = 22 / @roboto_metrics.units_per_em
     {x_min, y_min, x_max, y_max} = FontMetrics.max_box(22, @roboto_metrics)
 
     assert x_min == xv_min * scale
@@ -216,7 +216,7 @@ defmodule FontMetricsTest do
     metrics = @roboto_metrics
 
     raw_value = metrics.metrics[97] + metrics.metrics[98] + metrics.metrics[99]
-    scale = 22 / (metrics.ascent - metrics.descent)
+    scale = 22 / metrics.units_per_em
 
     assert FontMetrics.width("abc", 22, metrics) == raw_value * scale
     assert FontMetrics.width('abc', 22, metrics) == raw_value * scale
@@ -231,7 +231,7 @@ defmodule FontMetricsTest do
     raw_kerned = FontMetrics.width(string, nil, metrics, true)
     assert raw_kerned < raw_width
 
-    scale = 22 / (metrics.ascent - metrics.descent)
+    scale = 22 / metrics.units_per_em
     assert FontMetrics.width(string, 22, metrics) == raw_width * scale
     assert FontMetrics.width(string, 22, metrics, true) == raw_kerned * scale
   end
@@ -250,21 +250,21 @@ defmodule FontMetricsTest do
   test "position_at works with a simple string" do
     string = "PANCAKE breafasts are yummy"
     {w, 0} = FontMetrics.position_at(string, 8, 22, @roboto_metrics)
-    assert trunc(w) == 99
+    assert trunc(w) == 116
     {w, 0} = FontMetrics.position_at(string, 8, 22, @bitter_metrics)
-    assert trunc(w) == 103
+    assert trunc(w) == 123
     {w, 0} = FontMetrics.position_at(string, 8, 22, @bitter_metrics, kern: true)
-    assert trunc(w) == 101
+    assert trunc(w) == 121
   end
 
   test "position_at works with a multiline string" do
     string = "PANCAKE breafasts\nPANCAKE are yummy"
     {w, 1} = FontMetrics.position_at(string, 25, 22, @roboto_metrics)
-    assert trunc(w) == 89
+    assert trunc(w) == 104
     {w, 1} = FontMetrics.position_at(string, 25, 22, @bitter_metrics)
-    assert trunc(w) == 92
+    assert trunc(w) == 110
     {w, 1} = FontMetrics.position_at(string, 25, 22, @bitter_metrics, kern: true)
-    assert trunc(w) == 90
+    assert trunc(w) == 108
   end
 
   # ============================================================================
@@ -274,14 +274,14 @@ defmodule FontMetricsTest do
     string = "This string will be shortened to the requested width"
 
     assert FontMetrics.shorten(string, 216, 22, @roboto_metrics) ==
-             "This string will be short..."
+             "This string will be s..."
   end
 
   test "shorten shortens a string with custom terminator" do
     string = "This string will be shortened to the requested width"
 
     assert FontMetrics.shorten(string, 226, 22, @roboto_metrics, terminator: "___") ==
-             "This string will be short___"
+             "This string will be s___"
   end
 
   test "shorten returns an empty string if the max is too small for the terminator" do
@@ -293,14 +293,14 @@ defmodule FontMetricsTest do
     string = "This string\nwill be shortened to the requested\nwidth"
 
     assert FontMetrics.shorten(string, 160, 22, @roboto_metrics) ==
-             "This string\nwill be shortened...\nwidth"
+             "This string\nwill be shorten...\nwidth"
   end
 
   test "shorten shortens a string using kerning" do
     string = "PANCAKE breafasts are yummy"
 
     assert FontMetrics.shorten(string, 190, 22, @bitter_metrics, kern: true) ==
-             "PANCAKE breafasts..."
+             "PANCAKE breaf..."
   end
 
   # ============================================================================
@@ -308,18 +308,18 @@ defmodule FontMetricsTest do
 
   test "nearest_gap finds the gap in a simple string" do
     string = "This is a sample string"
-    {14, w, 0} = FontMetrics.nearest_gap(string, {120, 0}, 22, @roboto_metrics)
-    assert trunc(w) == 121
-    {15, w, 0} = FontMetrics.nearest_gap(string, {124, 0}, 22, @roboto_metrics)
-    assert trunc(w) == 125
+    {13, w, 0} = FontMetrics.nearest_gap(string, {120, 0}, 22, @roboto_metrics)
+    assert trunc(w) == 129
+    {14, w, 0} = FontMetrics.nearest_gap(string, {136, 0}, 22, @roboto_metrics)
+    assert trunc(w) == 141
   end
 
   test "nearest_gap finds the gap in a kerned string" do
     string = "PANCAKE breafasts are yummy"
-    {11, w, 0} = FontMetrics.nearest_gap(string, {120, 0}, 22, @bitter_metrics, kern: true)
-    assert trunc(w) == 119
-    {12, w, 0} = FontMetrics.nearest_gap(string, {126, 0}, 22, @bitter_metrics, kern: true)
-    assert trunc(w) == 129
+    {9, w, 0} = FontMetrics.nearest_gap(string, {120, 0}, 22, @bitter_metrics, kern: true)
+    assert trunc(w) == 121
+    {10, w, 0} = FontMetrics.nearest_gap(string, {136, 0}, 22, @bitter_metrics, kern: true)
+    assert trunc(w) == 131
   end
 
   test "nearest_gap returns the start if negative y" do
@@ -334,10 +334,10 @@ defmodule FontMetricsTest do
 
   test "nearest_gap returns line of a multiline string" do
     string = "This string\nwill be shortened to the requested\nwidth"
-    {15, w, 1} = FontMetrics.nearest_gap(string, {120, 24}, 22, @roboto_metrics)
-    assert trunc(w) == 121
+    {13, w, 1} = FontMetrics.nearest_gap(string, {120, 24}, 22, @roboto_metrics)
+    assert trunc(w) == 118
     {5, w, 2} = FontMetrics.nearest_gap(string, {120, 46}, 22, @roboto_metrics)
-    assert trunc(w) == 45
+    assert trunc(w) == 53
   end
 
   # ============================================================================
@@ -348,26 +348,26 @@ defmodule FontMetricsTest do
 
   test "wrap wraps a string" do
     assert FontMetrics.wrap(@long_str, 110, 22, @roboto_metrics) ==
-             "This is a lon\ng string that w\nill be wrappe\nd because it is\n too wide."
+             "This is a lo\nng string th\nat will be wr\napped beca\nuse it is too \nwide."
   end
 
   test "wrap wraps a string with a return" do
     assert FontMetrics.wrap(@long_ret, 110, 22, @roboto_metrics) ==
-             "This is a lon\ng string that w\nill be wrappe\nd because it is\n too wide\nIt also deals \nwith returns in \nthe string"
+             "This is a lo\nng string th\nat will be wr\napped beca\nuse it is too \nwide\nIt also deal\ns with retur\nns in the stri\nng"
   end
 
   test "wrap wraps a string with numeric indent option" do
     assert FontMetrics.wrap(@long_str, 120, 22, @roboto_metrics, indent: 2) ==
-             "This is a long \n  string that will\n   be wrapped \n  because it is t\n  oo wide."
+             "This is a lon\n  g string that\n   will be wra\n  pped becau\n  se it is too \n  wide."
   end
 
   test "wrap wraps a string with string indent option" do
     assert FontMetrics.wrap(@long_str, 120, 22, @roboto_metrics, indent: "_abc_") ==
-             "This is a long \n_abc_string tha\n_abc_t will be \n_abc_wrapped \n_abc_because i\n_abc_t is too w\n_abc_ide."
+             "This is a lon\n_abc_g string\n_abc_ that w\n_abc_ill be w\n_abc_rapped\n_abc_ becau\n_abc_se it is \n_abc_too wi\n_abc_de."
   end
 
   test "wrap wraps a string with charlist indent option" do
     assert FontMetrics.wrap(@long_str, 120, 22, @roboto_metrics, indent: '_abc_') ==
-             "This is a long \n_abc_string tha\n_abc_t will be \n_abc_wrapped \n_abc_because i\n_abc_t is too w\n_abc_ide."
+             "This is a lon\n_abc_g string\n_abc_ that w\n_abc_ill be w\n_abc_rapped\n_abc_ becau\n_abc_se it is \n_abc_too wi\n_abc_de."
   end
 end
