@@ -92,7 +92,7 @@ defmodule FontMetrics do
   """
   @spec supported?(
           codepoint :: integer | list(integer) | binary,
-          input_class :: FontMetrics.t()
+          metrics :: FontMetrics.t()
         ) :: boolean
   def supported?(codepoint, %FontMetrics{metrics: metrics, version: @version})
       when is_integer(codepoint) do
@@ -118,6 +118,7 @@ defmodule FontMetrics do
 
   returns `ascent`
   """
+  @spec ascent( pixels :: number, metrics :: FontMetrics.t() ) :: number
   def ascent(pixels, font_metrics)
   def ascent(nil, %FontMetrics{ascent: ascent, version: @version}), do: ascent
 
@@ -131,6 +132,7 @@ defmodule FontMetrics do
 
   returns `descent`
   """
+  @spec descent( pixels :: number, metrics :: FontMetrics.t() ) :: number
   def descent(pixels, font_metrics)
   def descent(nil, %FontMetrics{descent: descent, version: @version}), do: descent
   def descent( pixels, %FontMetrics{descent: descent, units_per_em: u_p_m } ) do
@@ -143,6 +145,7 @@ defmodule FontMetrics do
 
   returns `pixels`
   """
+  @spec points_to_pixels( pixels :: number ) :: number
   def points_to_pixels(points) when is_number(points), do: points * @point_to_pixel_ratio
 
   # --------------------------------------------------------
@@ -153,6 +156,8 @@ defmodule FontMetrics do
 
   returns `{x_min, y_min, x_max, y_max}`
   """
+  @spec max_box( pixels :: number, metrics :: FontMetrics.t() ) :: 
+    {x_min::number, y_min::number, x_max::number, y_max::number}
   def max_box(pixels, font_metrics)
   def max_box(nil, %FontMetrics{max_box: max_box, version: @version}), do: max_box
 
@@ -177,6 +182,12 @@ defmodule FontMetrics do
 
   returns `width`
   """
+  @spec width(
+    String.t() | integer | list(integer),
+    pixels :: number,
+    metrics :: FontMetrics.t(),
+    opts::Keyword.t()
+  ) :: number
   def width( source, pixels, font_metrics, opts \\ [] )
 
   def width("", _, _, _), do: 0
@@ -268,6 +279,14 @@ defmodule FontMetrics do
 
   returns `string`
   """
+
+  @spec shorten(
+    String.t() | list(integer),
+    max_width :: number,
+    pixels :: number,
+    metrics :: FontMetrics.t(),
+    opts::Keyword.t()
+  ) :: String.t() | list(integer)
 
   def shorten( source, max_width, pixels, font_metrics, opts \\ [] )
 
@@ -403,6 +422,13 @@ defmodule FontMetrics do
 
   returns `{character_number, x_position, line_number}`
   """
+  @spec nearest_gap(
+    String.t() | list(integer),
+    pos :: {number,number},
+    pixels :: number,
+    metrics :: FontMetrics.t(),
+    opts::Keyword.t()
+  ) :: {character_number::integer, x_position::number, line_number::integer}
   def nearest_gap( source, pos, pixels, font_metrics, opts \\ [] )
 
   def nearest_gap(_, {_, y}, _, _, _) when y < 0, do: {0, 0, 0}
@@ -530,6 +556,15 @@ defmodule FontMetrics do
 
   returns `{x_position, line_number}`
   """
+
+  @spec position_at(
+    String.t() | list(integer),
+    character_index :: number,
+    pixels :: number,
+    metrics :: FontMetrics.t(),
+    opts::Keyword.t()
+  ) :: {x::number, line::integer}
+
   def position_at(source, n, pixels, font_metric, opts \\ [])
 
   def position_at(
@@ -596,6 +631,16 @@ defmodule FontMetrics do
 
   returns the wrapped string
   """
+
+  @spec wrap(
+    String.t() | list(integer),
+    max_width::number,
+    pixels :: number,
+    metrics :: FontMetrics.t(),
+    opts::Keyword.t()
+  ) :: String.t() | list(integer)
+
+
   def wrap(source, max_width, pixels, font_metric, opts \\ [])
 
   def wrap(
