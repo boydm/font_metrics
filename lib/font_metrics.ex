@@ -47,7 +47,7 @@ defmodule FontMetrics do
 
   @type t :: %FontMetrics{
           version: @version,
-          source: any,
+          source: FontMetrics.Source.t(),
           direction: nil,
           smallest_ppem: integer,
           units_per_em: integer,
@@ -57,6 +57,57 @@ defmodule FontMetrics do
           line_gap: integer,
           metrics: map,
           kerning: nil | map
+        }
+
+
+  # # ------------------------------------
+  # defp intrepret_unpack(%{
+  #        "__struct__" => @name,
+  #        "version" => @version,
+  #        "direction" => direction,
+  #        "ascent" => ascent,
+  #        "descent" => descent,
+  #        "smallest_ppem" => smallest_ppem,
+  #        "units_per_em" => units_per_em,
+  #        "max_box" => [x_min, y_min, x_max, y_max],
+  #        "kerning" => kerning,
+  #        "metrics" => metrics,
+  #        "source" => %{
+  #          "created_at" => created_at,
+  #          "modified_at" => modified_at,
+  #          "font_type" => font_type,
+  #          "signature" => signature,
+  #          "signature_type" => @signature_name,
+  #          "file" => file
+  #        }
+  #      }) do
+  #   font_type =
+  #     case font_type do
+  #       "TrueType" -> :true_type
+  #     end
+
+  #   {:ok,
+  #    %FontMetrics{
+  #      version: @version,
+  #      direction: direction,
+  #      ascent: ascent,
+  #      descent: descent,
+  #      smallest_ppem: smallest_ppem,
+  #      units_per_em: units_per_em,
+  #      max_box: {x_min, y_min, x_max, y_max},
+  #      kerning: Enum.map(kerning, fn [a, b, v] -> {{a, b}, v} end) |> Enum.into(%{}),
+  #      metrics: metrics,
+  #      source: %FontMetrics.Source{
+  #        created_at: created_at,
+  #        modified_at: modified_at,
+  #        font_type: font_type,
+  #        signature: signature,
+  #        signature_type: :sha256,
+  #        file: file
+  #      }
+  #    }}
+  # end
+
 
   defstruct version: nil,
             source: nil,
