@@ -69,9 +69,7 @@ defmodule FontMetrics do
             metrics: %{},
             kerning: %{}
 
-
-  @kern_option_schema [ kern: [ type: :boolean, default: false ] ]
-
+  @kern_option_schema [kern: [type: :boolean, default: false]]
 
   # ===========================================================================
   defmodule Error do
@@ -209,7 +207,7 @@ defmodule FontMetrics do
         opts
       )
       when is_list(opts) do
-    opts = NimbleOptions.validate!( opts, @kern_option_schema )
+    opts = NimbleOptions.validate!(opts, @kern_option_schema)
 
     do_width(source, 1.0, cp_metrics, kerning, opts[:kern])
   end
@@ -226,7 +224,7 @@ defmodule FontMetrics do
         opts
       )
       when is_number(pixels) and pixels > 0 and is_list(opts) do
-    opts = NimbleOptions.validate!( opts, @kern_option_schema )
+    opts = NimbleOptions.validate!(opts, @kern_option_schema)
 
     scale = pixels / u_p_m
     do_width(source, scale, cp_metrics, kerning, opts[:kern])
@@ -280,8 +278,8 @@ defmodule FontMetrics do
 
   # -------------------------------------------------------- 
   @shorten_options_schema [
-    kern: [ type: :boolean, default: false ],
-    terminator: [ type: :string, default: "..." ]
+    kern: [type: :boolean, default: false],
+    terminator: [type: :string, default: "..."]
   ]
 
   @doc """
@@ -318,7 +316,7 @@ defmodule FontMetrics do
       when is_list(source) and is_list(opts) do
     opts = NimbleOptions.validate!(opts, @shorten_options_schema)
 
-    terminator = String.to_charlist( opts[:terminator] )
+    terminator = String.to_charlist(opts[:terminator])
 
     # calculate the scale to use
     scale = pixels / u_p_m
@@ -361,12 +359,12 @@ defmodule FontMetrics do
   # and keep it to a single pass as much as possible
   # no kerning
   defp do_shorten(
-        source,
-        max_width,
-        scale,
-        %FontMetrics{metrics: cp_metrics},
-        false
-      ) do
+         source,
+         max_width,
+         scale,
+         %FontMetrics{metrics: cp_metrics},
+         false
+       ) do
     max_width = max_width / scale
 
     {out, _} =
@@ -384,12 +382,12 @@ defmodule FontMetrics do
 
   # yes kerning
   defp do_shorten(
-        source,
-        max_width,
-        scale,
-        %FontMetrics{metrics: cp_metrics, kerning: kerning},
-        true
-      ) do
+         source,
+         max_width,
+         scale,
+         %FontMetrics{metrics: cp_metrics, kerning: kerning},
+         true
+       ) do
     max = max_width / scale
     do_kern_shorten(source, max, cp_metrics, kerning)
   end
@@ -423,10 +421,10 @@ defmodule FontMetrics do
 
   # --------------------------------------------------------
   @gap_options_schema [
-      kern: [ type: :boolean, default: false ],
-      wrap: [ type: {:in, [:word, :char]}, default: :word ],
-      line_height: [ type: {:custom, __MODULE__, :validate_number, [:line_height]} ]
-    ]
+    kern: [type: :boolean, default: false],
+    wrap: [type: {:in, [:word, :char]}, default: :word],
+    line_height: [type: {:custom, __MODULE__, :validate_number, [:line_height]}]
+  ]
 
   @doc """
   Find the gap between to characters given an {x,y} coordinate
@@ -460,13 +458,13 @@ defmodule FontMetrics do
         opts
       )
       when is_list(line) and is_list(opts) do
-    opts = NimbleOptions.validate!( opts, @kern_option_schema )
+    opts = NimbleOptions.validate!(opts, @kern_option_schema)
 
     # calculate the scaled x and y to use
     scale = pixels / u_p_m
 
     x = x / scale
-    do_nearest_gap( line, x, cp_metrics, kerning, opts[:kern] )
+    do_nearest_gap(line, x, cp_metrics, kerning, opts[:kern])
   end
 
   def nearest_gap(
@@ -595,7 +593,7 @@ defmodule FontMetrics do
         opts
       )
       when is_list(source) do
-    opts = NimbleOptions.validate!( opts, @kern_option_schema )
+    opts = NimbleOptions.validate!(opts, @kern_option_schema)
 
     # calculate the scale factor
     scale = pixels / u_p_m
@@ -641,9 +639,9 @@ defmodule FontMetrics do
   # --------------------------------------------------------
 
   @wrap_options_schema [
-      wrap: [ type: {:in, [:word, :char]}, default: :word ],
-      kern: [ type: :boolean, default: false ]
-    ]
+    wrap: [type: {:in, [:word, :char]}, default: :word],
+    kern: [type: :boolean, default: false]
+  ]
 
   @doc """
   Wraps a string to a given width by adding returns.
@@ -664,71 +662,78 @@ defmodule FontMetrics do
 
   def wrap(source, max_width, pixels, font_metric, opts \\ [])
 
-  def wrap( source, max_width, pixels, fm, opts )
+  def wrap(source, max_width, pixels, fm, opts)
       when is_bitstring(source) and is_list(opts) and max_width > 0 do
     opts = NimbleOptions.validate!(opts, @wrap_options_schema)
 
     case opts[:wrap] do
-      :char -> 
-        do_wrap_chars(source, max_width, pixels, fm, opts )
+      :char ->
+        do_wrap_chars(source, max_width, pixels, fm, opts)
 
-      :word -> 
+      :word ->
         source
         |> String.split(" ")
-        |> do_wrap_words( max_width, pixels, fm, opts )
+        |> do_wrap_words(max_width, pixels, fm, opts)
     end
   end
 
-  defp do_wrap_chars( chars, max_width, pixels, fm, opts, line \\ "", lines \\ [] )
-  defp do_wrap_chars( "", _, _, _, _, "", lines ), do: end_wrap( lines )
-  defp do_wrap_chars( "", _, _, _, _, line, lines ), do: end_wrap( [line | lines] )
-  defp do_wrap_chars( text, max_width, pixels, fm, opts, line, lines ) do
+  defp do_wrap_chars(chars, max_width, pixels, fm, opts, line \\ "", lines \\ [])
+  defp do_wrap_chars("", _, _, _, _, "", lines), do: end_wrap(lines)
+  defp do_wrap_chars("", _, _, _, _, line, lines), do: end_wrap([line | lines])
+
+  defp do_wrap_chars(text, max_width, pixels, fm, opts, line, lines) do
     # split the text as if it was a list
-    {cp, tail} = String.split_at( text, 1 )
+    {cp, tail} = String.split_at(text, 1)
 
     # directly join the cp and the current line
     test_line = line <> cp
 
     # test if new_out goes past max_width. If it does, return it there
-    case width( test_line, pixels, fm, kern: opts[:kern] ) > max_width do
-      true ->   # too long
-        do_wrap_chars( text, max_width, pixels, fm, opts, "", [line | lines] )
-      
-      false -> # keep going
-        do_wrap_chars( tail, max_width, pixels, fm, opts, test_line, lines )
+    case width(test_line, pixels, fm, kern: opts[:kern]) > max_width do
+      # too long
+      true ->
+        do_wrap_chars(text, max_width, pixels, fm, opts, "", [line | lines])
+
+      # keep going
+      false ->
+        do_wrap_chars(tail, max_width, pixels, fm, opts, test_line, lines)
     end
   end
 
-  defp do_wrap_words( words, max_width, pixels, fm, opts, line \\ "", lines \\ [] )
-  defp do_wrap_words( [], _, _, _, _, "", lines ), do: end_wrap( lines )
-  defp do_wrap_words( [], _, _, _, _, line, lines ), do: end_wrap( [line | lines] )
-  defp do_wrap_words( [w | tail] = words, max_width, pixels, fm, opts, line, lines ) do
-    test_line = Enum.join( [line, w], " " )
-    |> String.trim()
+  defp do_wrap_words(words, max_width, pixels, fm, opts, line \\ "", lines \\ [])
+  defp do_wrap_words([], _, _, _, _, "", lines), do: end_wrap(lines)
+  defp do_wrap_words([], _, _, _, _, line, lines), do: end_wrap([line | lines])
+
+  defp do_wrap_words([w | tail] = words, max_width, pixels, fm, opts, line, lines) do
+    test_line =
+      Enum.join([line, w], " ")
+      |> String.trim()
 
     # test if new_out goes past max_width. If it does, return it there
-    case width( test_line, pixels, fm, kern: opts[:kern] ) > max_width do
-      true ->   # too long
-        do_wrap_words( words, max_width, pixels, fm, opts, "", [line | lines] )
-      
-      false -> # keep going
-        do_wrap_words( tail, max_width, pixels, fm, opts, test_line, lines )
+    case width(test_line, pixels, fm, kern: opts[:kern]) > max_width do
+      # too long
+      true ->
+        do_wrap_words(words, max_width, pixels, fm, opts, "", [line | lines])
+
+      # keep going
+      false ->
+        do_wrap_words(tail, max_width, pixels, fm, opts, test_line, lines)
     end
   end
 
-  defp end_wrap( lines ) do
+  defp end_wrap(lines) do
     lines
     |> Enum.reverse()
-    |> Enum.join( "\n" )
+    |> Enum.join("\n")
   end
 
-
-  #================================
+  # ================================
 
   # validate that an opt is a number. not just an integer.
   # example: 1.5 is sometimes acceptable.
-  def validate_number( n, _ ) when is_number(n) , do: {:ok, n}
-  def validate_number( n, name )  do
+  def validate_number(n, _) when is_number(n), do: {:ok, n}
+
+  def validate_number(n, name) do
     {
       :error,
       """
@@ -738,5 +743,4 @@ defmodule FontMetrics do
       """
     }
   end
-
 end

@@ -288,5 +288,4 @@ defmodule FontMetricsTest do
     assert FontMetrics.wrap(@long_ret, 110, 22, @roboto_metrics, wrap: :char) ==
              "This is a lo\nng string t\nhat will be \nwrapped b\necause it i\ns too wide\nIt also deal\ns with retur\nns in the st\nring"
   end
-
 end
