@@ -259,28 +259,34 @@ defmodule FontMetricsTest do
   @long_str "This is a long string that will be wrapped because it is too wide."
   @long_ret "This is a long string that will be wrapped because it is too wide\nIt also deals with returns in the string"
 
-  test "wrap wraps a string" do
+  test "wrap wraps a string - at word boundaries by default" do
     assert FontMetrics.wrap(@long_str, 110, 22, @roboto_metrics) ==
-             "This is a lo\nng string th\nat will be wr\napped beca\nuse it is too \nwide."
+             "This is a\nlong string\nthat will be\nwrapped\nbecause it\nis too\nwide."
   end
 
-  test "wrap wraps a string with a return" do
+  test "wrap wraps a string with a return - at word boundaries by default" do
     assert FontMetrics.wrap(@long_ret, 110, 22, @roboto_metrics) ==
-             "This is a lo\nng string th\nat will be wr\napped beca\nuse it is too \nwide\nIt also deal\ns with retur\nns in the stri\nng"
+             "This is a\nlong string\nthat will be\nwrapped\nbecause it\nis too wide\nIt also\ndeals with\nreturns in\nthe string"
   end
 
-  test "wrap wraps a string with numeric indent option" do
-    assert FontMetrics.wrap(@long_str, 120, 22, @roboto_metrics, indent: 2) ==
-             "This is a lon\n  g string that\n   will be wra\n  pped becau\n  se it is too \n  wide."
+  test "wrap wraps a string - at word boundaries" do
+    assert FontMetrics.wrap(@long_str, 110, 22, @roboto_metrics, wrap: :word) ==
+             "This is a\nlong string\nthat will be\nwrapped\nbecause it\nis too\nwide."
   end
 
-  test "wrap wraps a string with string indent option" do
-    assert FontMetrics.wrap(@long_str, 120, 22, @roboto_metrics, indent: "_abc_") ==
-             "This is a lon\n_abc_g string\n_abc_ that w\n_abc_ill be w\n_abc_rapped\n_abc_ becau\n_abc_se it is \n_abc_too wi\n_abc_de."
+  test "wrap wraps a string with a return - at word boundaries" do
+    assert FontMetrics.wrap(@long_ret, 110, 22, @roboto_metrics, wrap: :word) ==
+             "This is a\nlong string\nthat will be\nwrapped\nbecause it\nis too wide\nIt also\ndeals with\nreturns in\nthe string"
   end
 
-  test "wrap wraps a string with charlist indent option" do
-    assert FontMetrics.wrap(@long_str, 120, 22, @roboto_metrics, indent: '_abc_') ==
-             "This is a lon\n_abc_g string\n_abc_ that w\n_abc_ill be w\n_abc_rapped\n_abc_ becau\n_abc_se it is \n_abc_too wi\n_abc_de."
+  test "wrap wraps a string - at character boundaries" do
+    assert FontMetrics.wrap(@long_str, 110, 22, @roboto_metrics, wrap: :char) ==
+             "This is a lo\nng string t\nhat will be \nwrapped b\necause it i\ns too wide."
   end
+
+  test "wrap wraps a string with a return - at character boundaries" do
+    assert FontMetrics.wrap(@long_ret, 110, 22, @roboto_metrics, wrap: :char) ==
+             "This is a lo\nng string t\nhat will be \nwrapped b\necause it i\ns too wide\nIt also deal\ns with retur\nns in the st\nring"
+  end
+
 end
