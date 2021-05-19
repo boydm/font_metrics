@@ -279,7 +279,7 @@ defmodule FontMetrics do
   # -------------------------------------------------------- 
   @shorten_options_schema [
     kern: [type: :boolean, default: false],
-    terminator: [type: :string, default: "..."]
+    terminator: [type: :string, default: "…"]
   ]
 
   @doc """

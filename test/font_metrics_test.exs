@@ -187,7 +187,7 @@ defmodule FontMetricsTest do
     string = "This string will be shortened to the requested width"
 
     assert FontMetrics.shorten(string, 216, 22, @roboto_metrics) ==
-             "This string will be s..."
+             "This string will be sh…"
   end
 
   test "shorten shortens a string with custom terminator" do
@@ -206,14 +206,14 @@ defmodule FontMetricsTest do
     string = "This string\nwill be shortened to the requested\nwidth"
 
     assert FontMetrics.shorten(string, 160, 22, @roboto_metrics) ==
-             "This string\nwill be shorten...\nwidth"
+             "This string\nwill be shorten…\nwidth"
   end
 
   test "shorten shortens a string using kerning" do
     string = "PANCAKE breafasts are yummy"
 
     assert FontMetrics.shorten(string, 190, 22, @bitter_metrics, kern: true) ==
-             "PANCAKE breaf..."
+             "PANCAKE breaf…"
   end
 
   # ============================================================================
