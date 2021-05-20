@@ -96,7 +96,7 @@ defmodule FontMetrics do
           codepoint :: integer | list(integer) | binary,
           metrics :: FontMetrics.t()
         ) :: boolean
-  def supported?(codepoint, %FontMetrics{metrics: metrics, version: @version})
+  def supported?(codepoint, %FontMetrics{metrics: metrics})
       when is_integer(codepoint) do
     Map.has_key?(metrics, codepoint)
   end
@@ -122,7 +122,7 @@ defmodule FontMetrics do
   """
   @spec ascent(pixels :: number, metrics :: FontMetrics.t()) :: number
   def ascent(pixels, font_metrics)
-  def ascent(nil, %FontMetrics{ascent: ascent, version: @version}), do: ascent
+  def ascent(nil, %FontMetrics{ascent: ascent}), do: ascent
 
   def ascent(pixels, %FontMetrics{ascent: ascent, units_per_em: u_p_m}) do
     ascent * pixels / u_p_m
@@ -136,7 +136,7 @@ defmodule FontMetrics do
   """
   @spec descent(pixels :: number, metrics :: FontMetrics.t()) :: number
   def descent(pixels, font_metrics)
-  def descent(nil, %FontMetrics{descent: descent, version: @version}), do: descent
+  def descent(nil, %FontMetrics{descent: descent}), do: descent
 
   def descent(pixels, %FontMetrics{descent: descent, units_per_em: u_p_m}) do
     descent * pixels / u_p_m
@@ -162,14 +162,13 @@ defmodule FontMetrics do
   @spec max_box(pixels :: number, metrics :: FontMetrics.t()) ::
           {x_min :: number, y_min :: number, x_max :: number, y_max :: number}
   def max_box(pixels, font_metrics)
-  def max_box(nil, %FontMetrics{max_box: max_box, version: @version}), do: max_box
+  def max_box(nil, %FontMetrics{max_box: max_box}), do: max_box
 
   def max_box(
         pixels,
         %FontMetrics{
           max_box: {x_min, y_min, x_max, y_max},
-          units_per_em: u_p_m,
-          version: @version
+          units_per_em: u_p_m
         }
       ) do
     scale = pixels / u_p_m
@@ -201,8 +200,7 @@ defmodule FontMetrics do
         nil,
         %FontMetrics{
           metrics: cp_metrics,
-          kerning: kerning,
-          version: @version
+          kerning: kerning
         },
         opts
       )
@@ -218,8 +216,7 @@ defmodule FontMetrics do
         %FontMetrics{
           metrics: cp_metrics,
           kerning: kerning,
-          units_per_em: u_p_m,
-          version: @version
+          units_per_em: u_p_m
         },
         opts
       )
@@ -308,8 +305,7 @@ defmodule FontMetrics do
         %FontMetrics{
           metrics: cp_metrics,
           kerning: kerning,
-          units_per_em: u_p_m,
-          version: @version
+          units_per_em: u_p_m
         } = font_metrics,
         opts
       )
@@ -452,8 +448,7 @@ defmodule FontMetrics do
         %FontMetrics{
           metrics: cp_metrics,
           kerning: kerning,
-          units_per_em: u_p_m,
-          version: @version
+          units_per_em: u_p_m
         },
         opts
       )
@@ -474,8 +469,7 @@ defmodule FontMetrics do
         %FontMetrics{
           metrics: cp_metrics,
           kerning: kerning,
-          units_per_em: u_p_m,
-          version: @version
+          units_per_em: u_p_m
         } = fm,
         opts
       )
@@ -587,8 +581,7 @@ defmodule FontMetrics do
         %FontMetrics{
           metrics: cp_metrics,
           kerning: kerning,
-          units_per_em: u_p_m,
-          version: @version
+          units_per_em: u_p_m
         },
         opts
       )
