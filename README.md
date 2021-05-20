@@ -3,6 +3,18 @@
 [![Build Status](https://travis-ci.org/boydm/font_metrics.svg?branch=master)](https://travis-ci.org/boydm/font_metrics)
 [![Codecov](https://codecov.io/gh/boydm/font_metrics/branch/master/graph/badge.svg)](https://codecov.io/gh/boydm/font_metrics)
 
+
+## Update
+Version 0.5 has several major chagnes, including wrapping at word boudaries and, frankly,
+fixes a bug when calculating the widths.
+
+It also removes serialization and now just returns the struct. This library shouldn't
+have an opinion on how you want to serialize it's data. I suggest you use something
+like :erlang.term_to_binary to get it done. Scenic no longer needs this functionality
+and that really pointed out how it shouldn't be here.
+
+
+## Overview
 This library works with pre-generated font metrics data to explore and calculate various
 measurements of text in a given font and size.
 
