@@ -20,7 +20,7 @@ by adding `font_metrics` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:font_metrics, "~> 0.3"}
+    {:font_metrics, "~> 0.5"}
   ]
 end
 ```
