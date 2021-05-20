@@ -18,7 +18,7 @@ defmodule FontMetricsTest do
                   |> :erlang.binary_to_term()
 
   @version "0.1.1"
-  @hash_type :sha3_256
+  @hash_type :sha256
 
   # ============================================================================
 

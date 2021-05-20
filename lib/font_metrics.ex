@@ -81,7 +81,7 @@ defmodule FontMetrics do
   # high-level functions
 
   def version(), do: @version
-  def expected_hash(), do: :sha3_256
+  def expected_hash(), do: :sha256
 
   # ============================================================================
   # validity checks
