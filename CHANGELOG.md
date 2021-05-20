@@ -1,4 +1,7 @@
 
+## 0.5.1
+  * make sha256 the default again as it turns out sha3_256 isn't widely supported enough yet.
+
 ## 0.5.0
   * Fixed an issue calculating the scale factor used in many of the functions. Now, correctly, uses the units_per_em instead of ascent-descent for the baseline.
   * Removed the serialization APIs. Scenic no longer needs them and how you serialize the data in not an opinion the package should have. Use MsgPack. Use :erlang.term_to_binary. Use Jason. This package shouldn't care.
