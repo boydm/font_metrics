@@ -3,7 +3,7 @@ defmodule FontMetrics.MixProject do
 
   @app_name :font_metrics
 
-  @version "0.5.0"
+  @version "0.5.1"
 
   @elixir_version "~> 1.7"
   @github "https://github.com/boydm/font_metrics"
