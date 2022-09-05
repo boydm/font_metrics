@@ -5,7 +5,7 @@
 
 
 ## Update
-Version 0.5 has several major chagnes, including wrapping at word boudaries and, frankly,
+Version 0.5 has several major changes, including wrapping at word boundaries and, frankly,
 fixes a bug when calculating the widths.
 
 It also removes serialization and now just returns the struct. This library shouldn't
@@ -26,8 +26,8 @@ framework, but doesn't depend on it, so it is usable elsewhere.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `font_metrics` to your list of dependencies in `mix.exs`:
+FontMetrics can be installed by adding `font_metrics` to your list of
+dependencies in `mix.exs`:
 
 ```elixir
 def deps do
