@@ -163,21 +163,49 @@ defmodule FontMetricsTest do
   test "position_at works with a simple string" do
     string = "PANCAKE breafasts are yummy"
     {w, 0} = FontMetrics.position_at(string, 8, 22, @roboto_metrics)
-    assert trunc(w) == 116
+    assert trunc(w) == 104
     {w, 0} = FontMetrics.position_at(string, 8, 22, @bitter_metrics)
-    assert trunc(w) == 123
+    assert trunc(w) == 110
     {w, 0} = FontMetrics.position_at(string, 8, 22, @bitter_metrics, kern: true)
-    assert trunc(w) == 121
+    assert trunc(w) == 108
+  end
+
+  test "position_at returns zero length at position 0" do
+    string = "PANCAKE breafasts are yummy"
+    {w, 0} = FontMetrics.position_at(string, 0, 22, @roboto_metrics)
+    assert w == 0
+  end
+
+  test "with just one character, different positions in the string are multiples of the same width" do
+    string = "AAAAAAAAAA" # 10 chars long
+    {w, 0} = FontMetrics.position_at(string, 1, 22, @roboto_metrics)
+    {five_w, 0} = FontMetrics.position_at(string, 5, 22, @roboto_metrics)
+    assert 5*w == five_w
+    {ten_w, 0} = FontMetrics.position_at(string, 10, 22, @roboto_metrics)
+    assert 2*five_w == ten_w
+  end
+
+  test "the length of an empty string is zero" do
+    {w1, 0} = FontMetrics.position_at("", 0, 22, @roboto_metrics)
+    {w2, 0} = FontMetrics.position_at("", 1, 22, @roboto_metrics)
+    assert w1 == 0
+    assert w1 == w2
+  end
+
+  test "position one returns the same length as a one-character long string" do
+    {w1, 0} = FontMetrics.position_at("a", 1, 22, @roboto_metrics)
+    {w2, 0} = FontMetrics.position_at("aaaa", 1, 22, @roboto_metrics)
+    assert w1 == w2
   end
 
   test "position_at works with a multiline string" do
     string = "PANCAKE breafasts\nPANCAKE are yummy"
     {w, 1} = FontMetrics.position_at(string, 25, 22, @roboto_metrics)
-    assert trunc(w) == 104
+    assert trunc(w) == 98
     {w, 1} = FontMetrics.position_at(string, 25, 22, @bitter_metrics)
-    assert trunc(w) == 110
+    assert trunc(w) == 105
     {w, 1} = FontMetrics.position_at(string, 25, 22, @bitter_metrics, kern: true)
-    assert trunc(w) == 108
+    assert trunc(w) == 103
   end
 
   # ============================================================================

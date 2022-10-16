@@ -603,7 +603,7 @@ defmodule FontMetrics do
   defp do_position_at(line, n, cp_metrics, kerning, kern, k_next \\ 0, line_no \\ 0, width \\ 0)
 
   defp do_position_at('', _, _, _, _, _, line_no, width), do: {width, line_no}
-  defp do_position_at(_, -1, _, _, _, _, line_no, width), do: {width, line_no}
+  defp do_position_at(_, p, _, _, _, _, line_no, width) when p <= 0, do: {width, line_no}
 
   # handle newlines
   defp do_position_at([10 | cps], n, cp_metrics, kerning, kern, _, line_no, _) do
