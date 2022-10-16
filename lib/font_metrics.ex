@@ -177,31 +177,6 @@ defmodule FontMetrics do
 
   # --------------------------------------------------------
   @doc """
-  Return the height of a line of text. The response is scaled to the pixel size.
-  Adapted from this code: https://github.com/ScenicFramework/scenic_driver_local/blob/main/c_src/nanovg/fontstash.h#L964
-  """
-  @spec line_height(pixels :: number, metrics :: FontMetrics.t()) :: line_height :: number
-  def line_height(pixels, fm = %FontMetrics{ascent: ascent, descent: descent, max_box: {x_min, y_min, x_max, y_max}, line_gap: line_gap, units_per_em: u_p_m}) do
-    # test_line_gap = pixels - (ascender-descender)
-    # full_ascent = ascent + test_line_gap
-    # font_height = full_ascent - descent
-    # ascender = full_ascent / font_height
-    # descender = descent / font_height
-
-    # require IEx; IEx.pry()
-
-    # IO.inspect fm
-
-    # line_height = ascender - descender
-    # scale = pixels / u_p_m
-    # line_height * pixels
-    # (y_max - y_min) * (pixels / u_p_m)
-
-    (ascent + line_gap - descent) * (pixels / u_p_m)
-  end
-
-  # --------------------------------------------------------
-  @doc """
   Measure the width of a string, scaled to a pixel size
 
   ## Options
@@ -628,7 +603,7 @@ defmodule FontMetrics do
   defp do_position_at(line, n, cp_metrics, kerning, kern, k_next \\ 0, line_no \\ 0, width \\ 0)
 
   defp do_position_at('', _, _, _, _, _, line_no, width), do: {width, line_no}
-  defp do_position_at(_, -1, _, _, _, _, line_no, width), do: {width, line_no}
+  defp do_position_at(_, p, _, _, _, _, line_no, width) when p <= 0, do: {width, line_no}
 
   # handle newlines
   defp do_position_at([10 | cps], n, cp_metrics, kerning, kern, _, line_no, _) do
