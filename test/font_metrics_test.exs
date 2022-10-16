@@ -185,6 +185,19 @@ defmodule FontMetricsTest do
     assert 2*five_w == ten_w
   end
 
+  test "the length of an empty string is zero" do
+    {w1, 0} = FontMetrics.position_at("", 0, 22, @roboto_metrics)
+    {w2, 0} = FontMetrics.position_at("", 1, 22, @roboto_metrics)
+    assert w1 == 0
+    assert w1 == w2
+  end
+
+  test "position one returns the same length as a one-character long string" do
+    {w1, 0} = FontMetrics.position_at("a", 1, 22, @roboto_metrics)
+    {w2, 0} = FontMetrics.position_at("aaaa", 1, 22, @roboto_metrics)
+    assert w1 == w2
+  end
+
   test "position_at works with a multiline string" do
     string = "PANCAKE breafasts\nPANCAKE are yummy"
     {w, 1} = FontMetrics.position_at(string, 25, 22, @roboto_metrics)
