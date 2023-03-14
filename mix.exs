@@ -5,7 +5,7 @@ defmodule FontMetrics.MixProject do
 
   @version "0.5.1"
 
-  @elixir_version "~> 1.7"
+  @elixir_version "~> 1.9"
   @github "https://github.com/boydm/font_metrics"
 
   def project do
@@ -41,7 +41,7 @@ defmodule FontMetrics.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nimble_options, "~> 0.3"},
+      {:nimble_options, "~> 0.3 or ~> 0.4 or ~> 0.5 or ~> 1.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:excoveralls, ">= 0.0.0", only: :test, runtime: false},
       {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
