@@ -703,14 +703,21 @@ defmodule FontMetrics do
       |> String.trim()
 
     # test if new_out goes past max_width. If it does, return it there
-    case width(test_line, pixels, fm, kern: opts[:kern]) > max_width do
-      # too long
-      true ->
-        do_wrap_words(words, max_width, pixels, fm, opts, "", [line | lines])
+    test_width = width(test_line, pixels, fm, kern: opts[:kern])
 
-      # keep going
-      false ->
+    cond do
+      test_width <= max_width ->
+        # keep going
         do_wrap_words(tail, max_width, pixels, fm, opts, test_line, lines)
+
+      line == "" ->
+        # single word too long for line
+        # just make this word the whole line and hope for the best
+        do_wrap_words(tail, max_width, pixels, fm, opts, "", [test_line | lines])
+
+      true ->
+        # too long
+        do_wrap_words(words, max_width, pixels, fm, opts, "", [line | lines])
     end
   end
 
