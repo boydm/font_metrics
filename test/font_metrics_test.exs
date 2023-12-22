@@ -258,6 +258,7 @@ defmodule FontMetricsTest do
 
   @long_str "This is a long string that will be wrapped because it is too wide."
   @long_ret "This is a long string that will be wrapped because it is too wide\nIt also deals with returns in the string"
+  @long_word "This is a long string that will be wrapped with an excessssssssssssssively long word."
 
   test "wrap wraps a string - at word boundaries by default" do
     assert FontMetrics.wrap(@long_str, 110, 22, @roboto_metrics) ==
@@ -287,5 +288,10 @@ defmodule FontMetricsTest do
   test "wrap wraps a string with a return - at character boundaries" do
     assert FontMetrics.wrap(@long_ret, 110, 22, @roboto_metrics, wrap: :char) ==
              "This is a lo\nng string t\nhat will be \nwrapped b\necause it i\ns too wide\nIt also deal\ns with retur\nns in the st\nring"
+  end
+
+  test "wrap wraps a string - at word boundaries - with a very long word" do
+    assert FontMetrics.wrap(@long_word, 110, 22, @roboto_metrics, wrap: :word) ==
+             "This is a\nlong string\nthat will be\nwrapped\nwith an\nexcessssssssssssssively\nlong word."
   end
 end
